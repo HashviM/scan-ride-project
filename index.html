@@ -3,113 +3,98 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Secure Login</title>
+  <title>Scan-Ride</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 0;
-    }
-    .container, .rider-card {
-      margin-top: 50px;
-      padding: 20px;
-      border-radius: 10px;
-      background: white;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-      display: inline-block;
-    }
-    .input-container {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-    }
-    .input-box {
-      width: 40px;
-      height: 40px;
-      font-size: 20px;
-      text-align: center;
-    }
-    button {
-      margin: 10px;
-      padding: 10px 20px;
-      border: none;
-      background-color: #6200ea;
+      background-color: #111;
       color: white;
-      font-size: 16px;
-      cursor: pointer;
+      text-align: center;
+      padding-top: 60px;
+    }
+    h1 {
+      color: #00ffcc;
+    }
+    .passkey-box {
+      width: 30px;
+      font-size: 24px;
+      text-align: center;
+      margin: 0 5px;
+    }
+    #riderPage {
+      display: none;
     }
     .btn {
-      background-color: #3498db;
-    }
-    .btn-danger {
-      background-color: #e74c3c;
+      padding: 10px 20px;
+      background-color: #00ffcc;
+      color: #111;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="container" id="passkeyPage">
-    <h2>Enter Passkey</h2>
-    <div class="input-container">
-      <input type="text" class="input-box" maxlength="1" oninput="moveNext(this)">
-      <input type="text" class="input-box" maxlength="1" oninput="moveNext(this)">
-      <input type="text" class="input-box" maxlength="1" oninput="moveNext(this)">
-      <input type="text" class="input-box" maxlength="1" oninput="moveNext(this)">
-      <input type="text" class="input-box" maxlength="1" oninput="moveNext(this)">
-      <input type="text" class="input-box" maxlength="1" oninput="moveNext(this)">
+  <div id="loginPage">
+    <h1>Enter Passkey to Unlock</h1>
+    <div>
+      <input class="passkey-box" maxlength="1" />
+      <input class="passkey-box" maxlength="1" />
+      <input class="passkey-box" maxlength="1" />
+      <input class="passkey-box" maxlength="1" />
+      <input class="passkey-box" maxlength="1" />
+      <input class="passkey-box" maxlength="1" />
     </div>
-    <button onclick="verifyPasskey()">Unlock</button>
-    <p id="message" style="color: red;"></p>
+    <button class="btn" onclick="verifyPasskey()">Unlock</button>
+    <p id="passkey-message"></p>
   </div>
 
-  <div class="rider-card" id="riderPage" style="display: none;">
-    <h1>Welcome Rider!</h1>
-    <p>Bike is unlocked.</p>
-    <button class="btn" onclick="lockBike()">Lock Bike</button>
+  <div id="riderPage">
+    <h1>Bike Unlocked 🔓</h1>
+    <p>You can now ride!</p>
+    <button class="btn" onclick="lockBike()">Lock Bike 🔒</button>
+    <p id="lock-status"></p>
   </div>
 
   <script>
-    const passkey = "123456";
-    const ESP32_IP = "http://192.168.7.59"; // Change this if needed
+    let passkey = "123456";
+    let esp32IP = "http://192.168.7.59"; // replace with your ESP32 IP if it changes
 
-    function moveNext(input) {
-      if (input.value.length === 1) {
-        const next = input.nextElementSibling;
-        if (next && next.classList.contains("input-box")) {
-          next.focus();
-        }
+    function verifyPasskey() {
+      let enteredPasskey = Array.from(document.querySelectorAll(".passkey-box")).map(input => input.value).join("");
+      if (enteredPasskey === passkey) {
+        fetch(`${esp32IP}/unlock`)
+          .then(() => {
+            console.log("Relay ON - Bike unlocked");
+            showRiderPage();
+          })
+          .catch(err => {
+            console.error("ESP32 not reachable", err);
+            document.getElementById("passkey-message").innerText = "Could not connect to bike. Try again.";
+          });
+      } else {
+        document.getElementById("passkey-message").innerText = "Incorrect Passkey!";
       }
     }
 
-    function verifyPasskey() {
-      const inputs = document.querySelectorAll(".input-box");
-      let entered = "";
-      inputs.forEach(input => entered += input.value);
-      if (entered === passkey) {
-        fetch(`${ESP32_IP}/unlock`)
-          .then(() => {
-            document.getElementById("passkeyPage").style.display = "none";
-            document.getElementById("riderPage").style.display = "block";
-          })
-          .catch(() => {
-            document.getElementById("message").innerText = "Error contacting ESP32!";
-          });
-      } else {
-        document.getElementById("message").innerText = "Wrong passkey!";
-      }
+    function showRiderPage() {
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("riderPage").style.display = "block";
     }
 
     function lockBike() {
-      fetch(`${ESP32_IP}/lock`)
+      fetch(`${esp32IP}/lock`)
         .then(() => {
-          alert("Bike locked!");
-          location.reload();
+          document.getElementById("lock-status").innerText = "🔒 Bike Locked!";
+          console.log("Relay OFF - Bike locked");
         })
-        .catch(() => alert("Could not contact ESP32"));
+        .catch(err => {
+          console.error("ESP32 not reachable", err);
+          document.getElementById("lock-status").innerText = "Could not lock bike. Try again.";
+        });
     }
   </script>
 </body>
 </html>
-
-
