@@ -1,73 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>Scan-Ride Unlock</title>
   <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-    input { padding: 10px; width: 200px; font-size: 16px; }
-    button { padding: 10px 20px; font-size: 16px; margin: 10px; }
-    #mapPage { display: none; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 80px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
+  <h1>🔐 Enter Passkey to Unlock</h1>
+  <input type="password" id="passkey" placeholder="Enter passkey" />
+  <button onclick="checkPasskey()">Unlock</button>
 
-  <div id="loginPage">
-    <h1>Enter Passkey</h1>
-    <input type="password" id="passkey" placeholder="Passkey" />
-    <br><br>
-    <button onclick="checkPasskey()">Unlock</button>
-    <p id="status"></p>
-  </div>
-
-  <div id="mapPage">
-    <h1>🚴 Bike Unlocked!</h1>
-    <p>Enjoy your ride. Green light should be ON now ✅</p>
-    <button onclick="lockBike()">Lock Bike</button>
-    <p><em>This would turn OFF relay (turn green light OFF)</em></p>
-  </div>
+  <div id="status"></div>
 
   <script>
-    const correctPasskey = "4567"; // Set your passkey
-    const ESP_IP = "http://192.168.7.59"; // CHANGE THIS TO YOUR ESP32 IP!
+    const correctPasskey = "123456"; // Replace with your real passkey
 
     function checkPasskey() {
-      const key = document.getElementById("passkey").value;
-      const status = document.getElementById("status");
+      const input = document.getElementById("passkey").value;
+      const statusDiv = document.getElementById("status");
 
-      if (key === correctPasskey) {
-        status.innerText = "Correct! Unlocking...";
+      if (input === correctPasskey) {
+        statusDiv.innerText = "✅ Correct passkey! Unlocking...";
         
-        fetch(${ESP_IP}/unlock)
-          .then(res => res.text())
-          .then(data => {
-            console.log(data);
-            // Move to map page
-            document.getElementById("loginPage").style.display = "none";
-            document.getElementById("mapPage").style.display = "block";
+        // Call ESP32 /unlock endpoint
+        fetch("http://192.168.7.59/unlock")  // <-- Replace with your ESP32 IP if different
+          .then(res => {
+            if (res.ok) {
+              statusDiv.innerText += "\n🔓 Bike unlocked!";
+              setTimeout(() => {
+                window.location.href = "map.html"; // Go to next page
+              }, 1500);
+            } else {
+              statusDiv.innerText = "⚠️ Failed to unlock. Try again.";
+            }
           })
           .catch(err => {
-            status.innerText = "Error connecting to bike.";
+            statusDiv.innerText = "❌ Error connecting to ESP32.";
             console.error(err);
           });
-
       } else {
-        status.innerText = "❌ Incorrect passkey";
+        statusDiv.innerText = "❌ Incorrect passkey. Try again.";
       }
     }
-
-    function lockBike() {
-      fetch(${ESP_IP}/lock)
-        .then(res => res.text())
-        .then(data => {
-          alert("Bike locked! Green light turned OFF.");
-          console.log(data);
-        })
-        .catch(err => {
-          console.error("Lock failed", err);
-        });
-    }
   </script>
-
 </body>
 </html>
