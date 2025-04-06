@@ -1,132 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Scan-Ride</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f7f7f7;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        .passkey-box {
-            width: 40px;
-            height: 40px;
-            font-size: 24px;
-            text-align: center;
-            margin: 5px;
-        }
-
-        .passkey-container {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
-        #unlockBtn {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            cursor: pointer;
-        }
-
-        #riderPage {
-            display: none;
-            text-align: center;
-        }
-
-        .dark-mode {
-            background-color: #121212;
-            color: white;
-        }
-
-        #darkModeToggle {
-            margin-top: 20px;
-            padding: 6px 12px;
-            background-color: #555;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Secure Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container, .rider-card {
+      margin-top: 50px;
+      padding: 20px;
+      border-radius: 10px;
+      background: white;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      display: inline-block;
+    }
+    .input-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .input-box {
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      text-align: center;
+    }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      background-color: #6200ea;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .btn {
+      background-color: #3498db;
+    }
+    .btn-danger {
+      background-color: #e74c3c;
+    }
+  </style>
 </head>
 <body>
-    <div id="passkeyPage">
-        <h1>🔐 Enter Passkey</h1>
-        <div class="passkey-container">
-            <input class="passkey-box" type="text" maxlength="1" oninput="moveToNext(this, 0)">
-            <input class="passkey-box" type="text" maxlength="1" oninput="moveToNext(this, 1)">
-            <input class="passkey-box" type="text" maxlength="1" oninput="moveToNext(this, 2)">
-            <input class="passkey-box" type="text" maxlength="1" oninput="moveToNext(this, 3)">
-            <input class="passkey-box" type="text" maxlength="1" oninput="moveToNext(this, 4)">
-            <input class="passkey-box" type="text" maxlength="1" oninput="moveToNext(this, 5)">
-        </div>
-        <button id="unlockBtn" onclick="verifyPasskey()">Unlock Ride</button>
-        <p id="passkey-message" style="color: red;"></p>
+  <div class="container" id="passkeyPage">
+    <h2>Enter Passkey</h2>
+    <div class="input-container">
+      <input type="text" class="input-box" maxlength="1" oninput="moveNext(this)">
+      <input type="text" class="input-box" maxlength="1" oninput="moveNext(this)">
+      <input type="text" class="input-box" maxlength="1" oninput="moveNext(this)">
+      <input type="text" class="input-box" maxlength="1" oninput="moveNext(this)">
+      <input type="text" class="input-box" maxlength="1" oninput="moveNext(this)">
+      <input type="text" class="input-box" maxlength="1" oninput="moveNext(this)">
     </div>
+    <button onclick="verifyPasskey()">Unlock</button>
+    <p id="message" style="color: red;"></p>
+  </div>
 
-    <div id="riderPage">
-        <h1>🚴‍♂️ Ride Started!</h1>
-        <p>Enjoy your ride. Ride safe!</p>
-        <button onclick="startJourney()">Start Navigation</button>
-    </div>
+  <div class="rider-card" id="riderPage" style="display: none;">
+    <h1>Welcome Rider!</h1>
+    <p>Bike is unlocked.</p>
+    <button class="btn" onclick="lockBike()">Lock Bike</button>
+  </div>
 
-    <button id="darkModeToggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+  <script>
+    const passkey = "123456";
+    const ESP32_IP = "http://192.168.7.59"; // Change this if needed
 
-    <script>
-        let passkey = "123456"; 
-
-        function verifyPasskey() {
-            let enteredPasskey = Array.from(document.querySelectorAll(".passkey-box")).map(input => input.value).join("");
-            if (enteredPasskey === passkey) {
-                fetch("http://192.168.7.59/unlock")
-                    .then(response => response.text())
-                    .then(data => {
-                        console.log(data);
-                        showRiderPage();
-                    })
-                    .catch(error => {
-                        console.error("Error unlocking bike:", error);
-                    });
-            } else {
-                document.getElementById("passkey-message").innerText = "Incorrect Passkey!";
-            }
+    function moveNext(input) {
+      if (input.value.length === 1) {
+        const next = input.nextElementSibling;
+        if (next && next.classList.contains("input-box")) {
+          next.focus();
         }
+      }
+    }
 
-        function showRiderPage() {
+    function verifyPasskey() {
+      const inputs = document.querySelectorAll(".input-box");
+      let entered = "";
+      inputs.forEach(input => entered += input.value);
+      if (entered === passkey) {
+        fetch(`${ESP32_IP}/unlock`)
+          .then(() => {
             document.getElementById("passkeyPage").style.display = "none";
             document.getElementById("riderPage").style.display = "block";
-        }
+          })
+          .catch(() => {
+            document.getElementById("message").innerText = "Error contacting ESP32!";
+          });
+      } else {
+        document.getElementById("message").innerText = "Wrong passkey!";
+      }
+    }
 
-        function startJourney() {
-            window.location.href = "https://www.google.com/maps";
-        }
-
-        function toggleDarkMode() {
-            document.body.classList.toggle("dark-mode");
-        }
-
-        function moveToNext(input, index) {
-            let inputs = document.querySelectorAll(".passkey-box");
-            if (input.value.length === 1 && index < inputs.length - 1) {
-                inputs[index + 1].focus();
-            }
-        }
-    </script>
+    function lockBike() {
+      fetch(`${ESP32_IP}/lock`)
+        .then(() => {
+          alert("Bike locked!");
+          location.reload();
+        })
+        .catch(() => alert("Could not contact ESP32"));
+    }
+  </script>
 </body>
 </html>
+
 
