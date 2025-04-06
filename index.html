@@ -1,100 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Scan-Ride</title>
+  <meta charset="UTF-8">
+  <title>Scan-Ride Unlock</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #111;
-      color: white;
-      text-align: center;
-      padding-top: 60px;
-    }
-    h1 {
-      color: #00ffcc;
-    }
-    .passkey-box {
-      width: 30px;
-      font-size: 24px;
-      text-align: center;
-      margin: 0 5px;
-    }
-    #riderPage {
-      display: none;
-    }
-    .btn {
-      padding: 10px 20px;
-      background-color: #00ffcc;
-      color: #111;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 20px;
-    }
+    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+    input { padding: 10px; width: 200px; font-size: 16px; }
+    button { padding: 10px 20px; font-size: 16px; margin: 10px; }
+    #mapPage { display: none; }
   </style>
 </head>
 <body>
+
   <div id="loginPage">
-    <h1>Enter Passkey to Unlock</h1>
-    <div>
-      <input class="passkey-box" maxlength="1" />
-      <input class="passkey-box" maxlength="1" />
-      <input class="passkey-box" maxlength="1" />
-      <input class="passkey-box" maxlength="1" />
-      <input class="passkey-box" maxlength="1" />
-      <input class="passkey-box" maxlength="1" />
-    </div>
-    <button class="btn" onclick="verifyPasskey()">Unlock</button>
-    <p id="passkey-message"></p>
+    <h1>Enter Passkey</h1>
+    <input type="password" id="passkey" placeholder="Passkey" />
+    <br><br>
+    <button onclick="checkPasskey()">Unlock</button>
+    <p id="status"></p>
   </div>
 
-  <div id="riderPage">
-    <h1>Bike Unlocked 🔓</h1>
-    <p>You can now ride!</p>
-    <button class="btn" onclick="lockBike()">Lock Bike 🔒</button>
-    <p id="lock-status"></p>
+  <div id="mapPage">
+    <h1>🚴 Bike Unlocked!</h1>
+    <p>Enjoy your ride. Green light should be ON now ✅</p>
+    <button onclick="lockBike()">Lock Bike</button>
+    <p><em>This would turn OFF relay (turn green light OFF)</em></p>
   </div>
 
   <script>
-    let passkey = "123456";
-    let esp32IP = "http://192.168.7.59"; // replace with your ESP32 IP if it changes
+    const correctPasskey = "4567"; // Set your passkey
+    const ESP_IP = "http://192.168.7.59"; // CHANGE THIS TO YOUR ESP32 IP!
 
-    function verifyPasskey() {
-      let enteredPasskey = Array.from(document.querySelectorAll(".passkey-box")).map(input => input.value).join("");
-      if (enteredPasskey === passkey) {
-        fetch(`${esp32IP}/unlock`)
-          .then(() => {
-            console.log("Relay ON - Bike unlocked");
-            showRiderPage();
+    function checkPasskey() {
+      const key = document.getElementById("passkey").value;
+      const status = document.getElementById("status");
+
+      if (key === correctPasskey) {
+        status.innerText = "Correct! Unlocking...";
+        
+        fetch(${ESP_IP}/unlock)
+          .then(res => res.text())
+          .then(data => {
+            console.log(data);
+            // Move to map page
+            document.getElementById("loginPage").style.display = "none";
+            document.getElementById("mapPage").style.display = "block";
           })
           .catch(err => {
-            console.error("ESP32 not reachable", err);
-            document.getElementById("passkey-message").innerText = "Could not connect to bike. Try again.";
+            status.innerText = "Error connecting to bike.";
+            console.error(err);
           });
+
       } else {
-        document.getElementById("passkey-message").innerText = "Incorrect Passkey!";
+        status.innerText = "❌ Incorrect passkey";
       }
     }
 
-    function showRiderPage() {
-      document.getElementById("loginPage").style.display = "none";
-      document.getElementById("riderPage").style.display = "block";
-    }
-
     function lockBike() {
-      fetch(`${esp32IP}/lock`)
-        .then(() => {
-          document.getElementById("lock-status").innerText = "🔒 Bike Locked!";
-          console.log("Relay OFF - Bike locked");
+      fetch(${ESP_IP}/lock)
+        .then(res => res.text())
+        .then(data => {
+          alert("Bike locked! Green light turned OFF.");
+          console.log(data);
         })
         .catch(err => {
-          console.error("ESP32 not reachable", err);
-          document.getElementById("lock-status").innerText = "Could not lock bike. Try again.";
+          console.error("Lock failed", err);
         });
     }
   </script>
+
 </body>
 </html>
