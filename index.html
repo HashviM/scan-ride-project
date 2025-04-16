@@ -4,11 +4,33 @@
   <meta charset="UTF-8">
   <title>Scan-Ride Unlock</title>
   <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-    input { padding: 10px; width: 200px; font-size: 16px; }
-    button { padding: 10px 20px; font-size: 16px; margin: 10px; }
-    #mapPage { display: none; }
-    #status { color: red; }
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      background-color: #f4f4f4;
+    }
+
+    input {
+      padding: 10px;
+      width: 200px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px;
+      cursor: pointer;
+    }
+
+    #mapPage {
+      display: none;
+    }
+
+    #status {
+      color: red;
+    }
   </style>
 </head>
 <body>
@@ -25,12 +47,12 @@
     <h1>🚴 Bike Unlocked!</h1>
     <p>Enjoy your ride. Green light should be ON now ✅</p>
     <button onclick="lockBike()">Lock Bike</button>
-    <p><em>This would turn OFF relay (turn green light OFF)</em></p>
+    <p><em>This turns OFF the relay (turns green light OFF)</em></p>
   </div>
 
   <script>
-    const correctPasskey = "4567"; // Set your passkey
-    const ESP_IP = "http://192.168.7.59"; // CHANGE THIS TO YOUR ESP32’S CURRENT IP!
+    const correctPasskey = "123456"; // Your chosen passkey
+    const ESP_IP = "http://192.168.157.59"; // Your current ESP32 IP
 
     function checkPasskey() {
       const key = document.getElementById("passkey").value;
@@ -38,18 +60,15 @@
 
       if (key === correctPasskey) {
         status.innerText = "Correct! Unlocking...";
-        
-        fetch(${ESP_IP}/unlock)
+
+        fetch(`${ESP_IP}/unlock`)
           .then(res => {
-            if (!res.ok) {
-              throw new Error(HTTP error! status: ${res.status});
-            }
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.text();
           })
           .then(data => {
             console.log("Response from ESP32:", data);
             status.innerText = "Unlocked successfully!";
-            // Move to map page
             document.getElementById("loginPage").style.display = "none";
             document.getElementById("mapPage").style.display = "block";
           })
@@ -64,15 +83,13 @@
     }
 
     function lockBike() {
-      fetch(${ESP_IP}/lock)
+      fetch(`${ESP_IP}/lock`)
         .then(res => {
-          if (!res.ok) {
-            throw new Error(HTTP error! status: ${res.status});
-          }
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
           return res.text();
         })
         .then(data => {
-          alert("Bike locked! Green light turned OFF.");
+          alert("Bike locked! Relay turned OFF.");
           console.log(data);
         })
         .catch(err => {
