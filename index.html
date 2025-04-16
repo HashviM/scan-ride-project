@@ -91,6 +91,8 @@
         .then(data => {
           alert("Bike locked! Relay turned OFF.");
           console.log(data);
+          document.getElementById("mapPage").style.display = "none"; // Optionally, hide the map page after locking
+          document.getElementById("loginPage").style.display = "block"; // Optionally, show the login page again
         })
         .catch(err => {
           alert("Error locking bike: " + err.message);
