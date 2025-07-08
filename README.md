@@ -47,7 +47,3 @@ This is a mini-project developed as part of my BE EEE coursework. It focuses on 
 
 ### 📸 *Demo & Screenshots*
 
-(Upload and add screenshots or circuit diagrams here later using)
-
-```markdown
-![Demo Screenshot](images/filename.jpg)
