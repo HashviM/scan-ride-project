@@ -47,3 +47,16 @@ This is a mini-project developed as part of my BE EEE coursework. It focuses on 
 
 ### 📸 *Demo & Screenshots*
 
+
+Below are sample screenshots of the project interface:
+
+#### Page 1 – Correct Passkey
+![Page 1 – Correct Passkey](Page%201.jpg)
+
+#### Page 1 – Incorrect Passkey
+![Page 1 – Incorrect Passkey](Page%201%20-%20incorrect%20passkey.jpg)
+
+#### Page 2 – Map Page
+![Page 2 – Map Page](Page%202.jpg)
+
+
