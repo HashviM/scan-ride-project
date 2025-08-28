@@ -16,13 +16,11 @@ This is a mini-project developed as part of my BE EEE coursework. It focuses on 
 
 ## 🌐 *Live Demo*
 
-Currently, this project uses **direct website access** instead of a QR code. You can visit the project website here:
+You can visit the project website here directly : 🔗 [Scan Ride Website](https://scan-ride.vercel.app/)
+Or 
+You can directly scan the QR code given below.
+![Scan Ride QR](<img width="195" height="195" alt="website_qr" src="https://github.com/user-attachments/assets/89c533ec-bd01-400d-82b3-f9193242e673" />)
 
-🔗 [Scan Ride Website](https://scan-ride.vercel.app/)
-
-In the future, this can be integrated with a QR code for quick scanning and redirection to the website.
-
----
 
 ## ⚙ *Technologies & Components Used*
 
