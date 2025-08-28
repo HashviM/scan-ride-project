@@ -19,6 +19,8 @@ This is a mini-project developed as part of my BE EEE coursework. It focuses on 
 You can visit the project website here directly : 🔗 [Scan Ride Website](https://scan-ride.vercel.app/)
 Or 
 You can directly scan the QR code given below.
+![Scan Ride QR](https://github.com/user-attachments/assets/6b26ed45-4147-4b58-8fe6-78e20a30cc53)
+
 
 
 
