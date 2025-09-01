@@ -71,8 +71,8 @@ Below are sample screenshots of the project interface:
 
 ---
 ### Contributors 
-- [Devadharshni C]() 
-- [Hashvitha M](https://github.com/Hashhhhh0)
+- [Devadharshni C](https://github.com/DEVADHARSHNI57) 
+- [Hashvitha M](https://github.com/HashviM)
 
 
 
