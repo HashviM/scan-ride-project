@@ -69,4 +69,10 @@ Below are sample screenshots of the project interface:
 #### Page 2 – Map Page
 ![Page 2 – Map Page](Page%202.jpg)
 
+---
+### Contributors 
+- [Devadharshni C]() 
+- [Hashvitha M](https://github.com/Hashhhhh0)
+
+
 
